@@ -14,19 +14,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import * as THREE from 'three'
 import TextMesh from './components/TextMesh.vue'
 
 interface Link {
     text: string
-    url: string
+    url?: string
 }
 
 // prep links
 const links: Link[] = [
-    { text: 'Test', url: '/test' },
-    { text: 'Test 2', url: '/test2' },
+    { text: 'Test' },
+    { text: 'Test 2' },
     { text: 'Test', url: '/test' },
     { text: 'Test 2', url: '/test2' },
     { text: 'Test', url: '/test' },
@@ -36,11 +36,10 @@ const links: Link[] = [
 ]
 
 // load font
-const loaded = ref(false)
+const loaded = computed(() => font.value)
 const font = ref(null as null | THREE.Font)
 const loader = new THREE.FontLoader()
 loader.load('/easley.json', (loadedFont) => {
-    loaded.value = true
     font.value = loadedFont
 })
 

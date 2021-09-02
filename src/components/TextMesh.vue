@@ -1,47 +1,56 @@
 <template>
     <group>
+        <!-- click area -->
         <mesh
-            @pointerEnter="textColor = 'tomato'"
-            @pointerLeave="textColor = 'white'"
+            @pointerEnter="hovering = true"
+            @pointerLeave="hovering = false"
             @click="onClick"
-            :position-x="5"
+            :scale-x="5"
+            :scale-y="0.5"
+            :position-x="2.5"
+            :position-y="0.25"
+            v-if="hasLink"
         >
             <planeGeometry />
-            <meshBasicMaterial :transparent="true" :opacity="1" />
+            <meshBasicMaterial color="blue" :transparent="true" :opacity="1" />
         </mesh>
 
+        <!-- text -->
         <mesh>
-            <!-- text -->
-            <mesh>
-                <textGeometry :args="[text, { font, ...options }]" />
-                <meshBasicMaterial :color="textColor" />
-            </mesh>
+            <textGeometry :args="[text, { font, ...options }]" />
+            <meshBasicMaterial :color="textColor" />
         </mesh>
     </group>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { computed, defineProps, ref, withDefaults } from 'vue'
 import * as THREE from 'three'
 
-export default defineComponent({
-    props: {
-        text: { type: String, required: true },
-        font: { type: THREE.Font, required: true },
-        options: { type: Object, default: () => ({ size: 0.5, height: 0.02 }) },
-        url: { type: String, default: '' },
-    },
-    data() {
-        return {
-            textColor: 'white',
-        }
-    },
-    methods: {
-        onClick() {
-            if (this.url) {
-                console.log(this.url)
-            }
-        },
-    },
+const props = withDefaults(
+    defineProps<{
+        text: string
+        font: THREE.Font | null
+        options?: object
+        url?: string
+    }>(),
+    {
+        options: () => ({ size: 0.5, height: 0.02 }),
+    }
+)
+
+const hasLink = computed(() => props.url)
+
+const hovering = ref(false)
+
+const textColor = computed(() => {
+    if (!hasLink.value) return 'white'
+    return hovering.value ? 'tomato' : 'white'
 })
+
+const onClick = () => {
+    if (hasLink.value) {
+        console.log('TODO', props.url)
+    }
+}
 </script>

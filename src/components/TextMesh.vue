@@ -10,21 +10,21 @@
             :position-x="2.5"
             :position-y="0.25"
             v-if="hasLink"
+            :visible="false"
         >
             <planeGeometry />
-            <meshBasicMaterial color="blue" :transparent="true" :opacity="1" />
         </mesh>
 
         <!-- text -->
         <mesh>
             <textGeometry :args="[text, { font, ...options }]" />
-            <meshBasicMaterial :color="textColor" />
+            <meshPhongMaterial :color="textColor" />
         </mesh>
     </group>
 </template>
 
 <script lang="ts" setup>
-import { computed, defineProps, ref, withDefaults } from 'vue'
+import { computed, defineEmits, defineProps, ref, withDefaults } from 'vue'
 import * as THREE from 'three'
 
 const props = withDefaults(
@@ -39,6 +39,11 @@ const props = withDefaults(
     }
 )
 
+const emit =
+    defineEmits<{
+        (e: 'linkClicked', text: string): void
+    }>()
+
 const hasLink = computed(() => props.url)
 
 const hovering = ref(false)
@@ -49,8 +54,8 @@ const textColor = computed(() => {
 })
 
 const onClick = () => {
-    if (hasLink.value) {
-        console.log('TODO', props.url)
+    if (props.url) {
+        emit('linkClicked', props.url)
     }
 }
 </script>

@@ -1,38 +1,47 @@
 <template>
     <TroisCanvas :cameraPosition="[0, 0, 10]">
-        <group name="links" v-if="loaded">
-            <TextMesh
-                :font="font"
-                v-for="(link, i) in links"
-                :key="i"
-                :text="link.text"
-                :position-y="-i"
-                :url="link.url"
-            />
+        <!-- menu -->
+        <group v-if="loaded && current === 'menu'" :position-y="2.5">
+            <pointLight :position-z="5" :intensity="intensity" />
+
+            <!-- intro text -->
+            <group name="links">
+                <TextMesh
+                    :font="font"
+                    v-for="(link, i) in links"
+                    :key="i"
+                    :text="link.text"
+                    :position-y="i * -0.65"
+                    :url="link.url"
+                    @linkClicked="onClick"
+                />
+            </group>
         </group>
+
+        <!-- component -->
+        <Falling v-if="current === 'falling'" />
     </TroisCanvas>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import * as THREE from 'three'
+import { animate } from 'popmotion'
 import TextMesh from './components/TextMesh.vue'
+import Falling from './falling/Falling.vue'
 
 interface Link {
     text: string
     url?: string
 }
 
+const current = ref('menu')
+
 // prep links
 const links: Link[] = [
-    { text: 'Test' },
-    { text: 'Test 2' },
-    { text: 'Test', url: '/test' },
-    { text: 'Test 2', url: '/test2' },
-    { text: 'Test', url: '/test' },
-    { text: 'Test 2', url: '/test2' },
-    { text: 'Test', url: '/test' },
-    { text: 'Test 2', url: '/test2' },
+    { text: 'Trois Renderer' },
+    { text: '' },
+    { text: 'falling', url: 'falling' },
 ]
 
 // load font
@@ -43,8 +52,25 @@ loader.load('/easley.json', (loadedFont) => {
     font.value = loadedFont
 })
 
+// LIGHT ANIMATION
+// =================
+// light intensity
+const intensity = ref(1)
+let lightAnimation: { stop: () => void }
+
 // click event
-const onClick = (link: Link) => {
-    console.log(link)
+const onClick = async (url: string) => {
+    if (lightAnimation) lightAnimation.stop()
+
+    await new Promise<void>((onComplete) => {
+        lightAnimation = animate({
+            from: intensity.value,
+            to: 0,
+            duration: 200,
+            onUpdate: (v) => (intensity.value = v),
+            onComplete,
+        })
+    })
+    current.value = url
 }
 </script>

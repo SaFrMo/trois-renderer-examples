@@ -1,35 +1,51 @@
 <template>
     <TroisCanvas :cameraPosition="[0, 0, 10]">
         <group name="links" v-if="loaded">
-            <mesh name="link">
-                <textGeometry
-                    :args="['Test', { font, size: 0.5, height: 0.02 }]"
-                />
-                <meshBasicMaterial :color="white" />
-            </mesh>
+            <TextMesh
+                :font="font"
+                v-for="(link, i) in links"
+                :key="i"
+                :text="link.text"
+                :position-y="-i"
+                :url="link.url"
+            />
         </group>
     </TroisCanvas>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
+<script lang="ts" setup>
+import { ref } from 'vue'
 import * as THREE from 'three'
+import TextMesh from './components/TextMesh.vue'
 
-export default defineComponent({
-    setup() {
-        const loaded = ref(false)
-        const font = ref(null as null | THREE.Font)
+interface Link {
+    text: string
+    url: string
+}
 
-        const loader = new THREE.FontLoader()
-        loader.load('/easley.json', (loadedFont) => {
-            loaded.value = true
-            font.value = loadedFont
-        })
+// prep links
+const links: Link[] = [
+    { text: 'Test', url: '/test' },
+    { text: 'Test 2', url: '/test2' },
+    { text: 'Test', url: '/test' },
+    { text: 'Test 2', url: '/test2' },
+    { text: 'Test', url: '/test' },
+    { text: 'Test 2', url: '/test2' },
+    { text: 'Test', url: '/test' },
+    { text: 'Test 2', url: '/test2' },
+]
 
-        return {
-            font,
-            loaded,
-        }
-    },
+// load font
+const loaded = ref(false)
+const font = ref(null as null | THREE.Font)
+const loader = new THREE.FontLoader()
+loader.load('/easley.json', (loadedFont) => {
+    loaded.value = true
+    font.value = loadedFont
 })
+
+// click event
+const onClick = (link: Link) => {
+    console.log(link)
+}
 </script>

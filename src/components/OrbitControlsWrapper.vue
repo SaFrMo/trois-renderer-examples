@@ -35,7 +35,6 @@ export default defineComponent({
     },
     methods: {
         update() {
-            requestAnimationFrame(this.update)
             ;(this.$refs.controls as any)?.$el?.instance?.update()
         },
     },

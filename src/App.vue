@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import * as THREE from 'three'
 import { animate } from 'popmotion'
 import TextMesh from './components/TextMesh.vue'
@@ -37,7 +37,10 @@ interface Link {
 
 // MENU
 // =============
-const current = ref('menu')
+const current = ref('')
+onMounted(() => {
+    current.value = window.location.hash?.replace(/^#/, '') || 'menu'
+})
 
 // prep links
 const links: Link[] = [
@@ -46,6 +49,7 @@ const links: Link[] = [
     { text: 'falling', url: 'falling' },
 ]
 
+// update hash on case study change
 watch(
     () => current.value,
     (currentEl) => {

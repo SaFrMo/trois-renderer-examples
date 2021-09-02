@@ -7,12 +7,14 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "cannon-es": "0.18.0",
     "popmotion": "9.4.0",
     "three": "0.132.2",
     "trois-renderer": "0.1.2002",
     "vue": "3.2.7"
   },
   "devDependencies": {
+    "@types/node": "16.7.10",
     "@vitejs/plugin-vue": "^1.6.0",
     "@vue/compiler-sfc": "^3.2.6",
     "typescript": "^4.3.2",

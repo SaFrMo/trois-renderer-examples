@@ -18,13 +18,13 @@
             </group>
         </group>
 
-        <!-- component -->
+        <!-- case studies -->
         <Falling v-if="current === 'falling'" />
     </TroisCanvas>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import * as THREE from 'three'
 import { animate } from 'popmotion'
 import TextMesh from './components/TextMesh.vue'
@@ -35,6 +35,8 @@ interface Link {
     url?: string
 }
 
+// MENU
+// =============
 const current = ref('menu')
 
 // prep links
@@ -44,6 +46,15 @@ const links: Link[] = [
     { text: 'falling', url: 'falling' },
 ]
 
+watch(
+    () => current.value,
+    (currentEl) => {
+        window.location.hash = currentEl === 'menu' ? '' : currentEl
+    }
+)
+
+// FONT
+// ===============
 // load font
 const loaded = computed(() => font.value)
 const font = ref(null as null | THREE.Font)

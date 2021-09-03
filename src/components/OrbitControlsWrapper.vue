@@ -3,7 +3,7 @@
         ref="controls"
         v-if="orbitArgs.length === 2"
         :args="orbitArgs"
-        :enableDamping="true"
+        enableDamping
         :dampingFactor="0.1"
         v-bind="options"
     />

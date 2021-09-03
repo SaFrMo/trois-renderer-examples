@@ -13,7 +13,7 @@
         <spotLight
             :shadow-mapSize-height="1024"
             :shadow-mapSize-width="1024"
-            :castShadow="true"
+            castShadow
             :position-x="0"
             :position-y="1"
             :position-z="5"
@@ -25,7 +25,7 @@
 
         <!-- floor -->
         <mesh
-            :receiveShadow="true"
+            receiveShadow
             :rotation-x="Math.PI * -0.5"
             :position-y="-3"
             :scale="20"
@@ -45,8 +45,8 @@
             :key="body.id"
             :position="[body.position.x, body.position.y, body.position.z]"
             :scale="body.scale"
-            :castShadow="true"
-            :receiveShadow="true"
+            castShadow
+            receiveShadow
         >
             <component :is="body.geometry" :args="[1, 4]" />
             <meshPhongMaterial :color="body.color" />

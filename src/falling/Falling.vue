@@ -1,19 +1,53 @@
 <template>
     <group>
         <OrbitControlsWrapper
-            :options="{ enablePan: true, enableZoom: true }"
+            :options="{
+                enablePan: false,
+                enableZoom: false,
+                minAzimuthAngle: -Math.PI * 0.4,
+                maxAzimuthAngle: Math.PI * 0.4,
+                minPolarAngle: Math.PI * 0.1,
+                maxPolarAngle: Math.PI * 0.5,
+            }"
         />
-        <!-- <pointLight :position-x="-5" :position-y="20" />
-    <ambientLight color="#666666" /> -->
+        <directionalLight
+            :shadow-mapSize-height="1024"
+            :shadow-mapSize-width="1024"
+            :castShadow="true"
+            :position-x="-50"
+            :position-y="100"
+            :position-z="100"
+            :intensity="0.5"
+        />
+        <ambientLight color="#666666" />
 
+        <!-- floor -->
+        <mesh
+            :receiveShadow="true"
+            :rotation-x="Math.PI * -0.5"
+            :position-y="-3"
+            :scale="20"
+        >
+            <planeGeometry />
+            <meshStandardMaterial />
+        </mesh>
+        <!-- back wall -->
+        <mesh :receiveShadow="true" :position-z="-1" :scale="20">
+            <planeGeometry />
+            <meshStandardMaterial />
+        </mesh>
+
+        <!-- shapes -->
         <mesh
             v-for="body in threeBodies"
             :key="body.id"
             :position="[body.position.x, body.position.y, body.position.z]"
             :scale="body.scale"
+            :castShadow="true"
+            :receiveShadow="true"
         >
-            <component :is="body.geometry" />
-            <meshBasicMaterial :color="body.color" />
+            <component :is="body.geometry" :args="[1, 4]" />
+            <meshPhongMaterial :color="body.color" />
         </mesh>
     </group>
 </template>
@@ -63,13 +97,13 @@ const addBody = (body: CANNON.Body, geometry?: string, scale?: number) => {
 // INSTANTIATION
 // ===============
 const addRandomBody = () => {
-    const dice = Math.random()
+    // const dice = Math.random() * 2
 
     // if (dice <= 1) {
-    const scale = Math.random() + 0.4
+    const scale = Math.random() * 0.25 + 0.2
     const sphereBody = new CANNON.Body({
         mass: 1,
-        shape: new CANNON.Sphere(1),
+        shape: new CANNON.Sphere(scale),
         material: new CANNON.Material({
             restitution: Math.random() * 0.6 + 0.3,
         }),
@@ -78,11 +112,25 @@ const addRandomBody = () => {
     const y = 10
     sphereBody.position.set(x, y, 0) // m
 
-    addBody(sphereBody, 'sphereGeometry', scale)
+    addBody(sphereBody, 'icosahedronGeometry', scale)
+    // } else {
+    // const scale = Math.random() * 0.5 + 0.4
+    // const boxBody = new CANNON.Body({
+    //     mass: 1,
+    //     shape: new CANNON.Box(new CANNON.Vec3(scale)),
+    //     material: new CANNON.Material({
+    //         restitution: Math.random() * 0.6 + 0.3,
+    //     }),
+    // })
+    // const x = Math.random() * 10 - 5
+    // const y = 10
+    // boxBody.position.set(x, y, 0) // m
+
+    // addBody(boxBody, 'boxGeometry', scale)
     // }
 }
 Vue.onMounted(async () => {
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 100; i++) {
         addRandomBody()
         await new Promise((res) => setTimeout(res, Math.random() * 800))
     }
@@ -95,6 +143,7 @@ const update = () => {
         world.bodies.forEach((body, i) => {
             const threeBody = threeBodies.value.find((v) => v.id === body.id)
             threeBody?.position.copy(body.position as any)
+            threeBody?.rotation.copy(body.quaternion as any)
         })
     })
 }

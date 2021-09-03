@@ -1,5 +1,8 @@
 <template>
-    <TroisCanvas :cameraPosition="[0, 0, 10]">
+    <TroisCanvas
+        :cameraPosition="[0, 0, 10]"
+        :rendererProperties="rendererProperties"
+    >
         <!-- menu -->
         <group v-if="loaded && current === 'menu'" :position-y="2.5">
             <pointLight :position-z="5" :intensity="intensity" />
@@ -34,6 +37,13 @@ interface Link {
     text: string
     url?: string
 }
+
+// PROPERTIES
+// =============
+const rendererProperties = ref({
+    'shadowMap.type': THREE.PCFSoftShadowMap,
+    'shadowMap.enabled': true,
+})
 
 // MENU
 // =============

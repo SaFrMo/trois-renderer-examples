@@ -1,13 +1,16 @@
 <template>
-    <OrbitControlsWrapper :options="{ enablePan: false, enableZoom: true }" />
+    <OrbitControlsWrapper :options="{ enablePan: true, enableZoom: true }" />
+    <!-- <pointLight :position-x="-5" :position-y="20" />
+    <ambientLight color="#666666" /> -->
 
     <mesh
-        v-for="(body, i) in threeBodies"
-        :key="i"
+        v-for="body in threeBodies"
+        :key="body.id"
         :position="[body.position.x, body.position.y, body.position.z]"
+        :scale="body.scale"
     >
         <component :is="body.geometry" />
-        <meshBasicMaterial />
+        <meshBasicMaterial :color="body.color" />
     </mesh>
 </template>
 
@@ -18,6 +21,7 @@ import * as Vue from 'vue'
 import * as THREE from 'three'
 import { addBeforeRender, removeBeforeRender } from 'trois-renderer'
 import setupCannon from './setupCannon'
+import { getColor } from './colors'
 
 // PREP THREE
 // ============
@@ -26,42 +30,66 @@ interface ThreeBody {
     position: THREE.Vector3
     rotation: THREE.Quaternion
     geometry: string
+    color: string
+    scale: number
 }
 const threeBodies = Vue.ref([] as ThreeBody[])
 
-// CANNON WORLD SETUP
+// PREP CANNON
 // ====================
 const { physicsUpdate, world } = setupCannon()
 
 // WORLD SETUP
 // =============
-// prep adding bodies
-const addBody = (body: CANNON.Body, geometry?: string) => {
+const addBody = (body: CANNON.Body, geometry?: string, scale?: number) => {
     world.addBody(body)
 
-    if (geometry) {
+    if (geometry && scale) {
         threeBodies.value.push({
             id: body.id,
             position: new THREE.Vector3().copy(body.position as any),
             rotation: new THREE.Quaternion().copy(body.quaternion as any),
             geometry,
+            color: getColor(),
+            scale,
         })
+        console.log(threeBodies.value)
     }
 }
 
 // INSTANTIATION
 // ===============
-const radius = 1 // m
-const sphereBody = new CANNON.Body({
-    mass: 50, // kg
-    shape: new CANNON.Sphere(radius),
-    material: new CANNON.Material({ restitution: 0.5 }),
+const addRandomBody = () => {
+    const dice = Math.random()
+
+    // if (dice <= 1) {
+    const scale = Math.random() + 0.4
+    const sphereBody = new CANNON.Body({
+        mass: 1,
+        shape: new CANNON.Sphere(1),
+        material: new CANNON.Material({
+            restitution: Math.random() * 0.6 + 0.3,
+        }),
+    })
+    const x = Math.random() * 10 - 5
+    const y = Math.random() * 10 + 5
+    sphereBody.position.set(x, y, 0) // m
+
+    addBody(sphereBody, 'sphereGeometry', scale)
+    // }
+}
+addRandomBody()
+addRandomBody()
+
+Vue.onMounted(async () => {
+    // for (let i = 0; i < 10; i++) {
+    //     addRandomBody()
+    //     await new Promise((res) => setTimeout(res, 1000))
+    // }
+    addRandomBody()
 })
-sphereBody.position.set(0, 2, 0) // m
 
-addBody(sphereBody, 'sphereGeometry')
-
-// UPDATE SETUP
+// UPDATE FUNCTIONS
 // ==============
 const update = () => {
     physicsUpdate(() => {
@@ -79,18 +107,4 @@ Vue.onMounted(() => {
 Vue.onBeforeUnmount(() => {
     removeBeforeRender(update)
 })
-
-// THREE UPDATE
-// =================
-// const scene = Vue.reactive({
-//     positions: [] as THREE.Vector3[],
-// })
-// const blank = new THREE.Vector3()
-// const threeUpdate = () => {
-//     bodies.value.forEach((body, i) => {
-//         blank.set(body.position.x, body.position.y, body.position.z)
-//         scene.positions.splice(i, 1, blank.clone())
-//     })
-// }
-// addBeforeRender(threeUpdate)
 </script>

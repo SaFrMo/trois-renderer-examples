@@ -10,16 +10,18 @@
                 maxPolarAngle: Math.PI * 0.5,
             }"
         />
-        <directionalLight
+        <spotLight
             :shadow-mapSize-height="1024"
             :shadow-mapSize-width="1024"
             :castShadow="true"
-            :position-x="-50"
-            :position-y="100"
-            :position-z="100"
-            :intensity="0.5"
+            :position-x="0"
+            :position-y="1"
+            :position-z="5"
+            :intensity="0.3"
+            :penumbra="0.5"
+            color="#efdede"
         />
-        <ambientLight color="#666666" />
+        <ambientLight color="#aaaaaa" />
 
         <!-- floor -->
         <mesh
@@ -97,9 +99,6 @@ const addBody = (body: CANNON.Body, geometry?: string, scale?: number) => {
 // INSTANTIATION
 // ===============
 const addRandomBody = () => {
-    // const dice = Math.random() * 2
-
-    // if (dice <= 1) {
     const scale = Math.random() * 0.25 + 0.2
     const sphereBody = new CANNON.Body({
         mass: 1,
@@ -113,21 +112,6 @@ const addRandomBody = () => {
     sphereBody.position.set(x, y, 0) // m
 
     addBody(sphereBody, 'icosahedronGeometry', scale)
-    // } else {
-    // const scale = Math.random() * 0.5 + 0.4
-    // const boxBody = new CANNON.Body({
-    //     mass: 1,
-    //     shape: new CANNON.Box(new CANNON.Vec3(scale)),
-    //     material: new CANNON.Material({
-    //         restitution: Math.random() * 0.6 + 0.3,
-    //     }),
-    // })
-    // const x = Math.random() * 10 - 5
-    // const y = 10
-    // boxBody.position.set(x, y, 0) // m
-
-    // addBody(boxBody, 'boxGeometry', scale)
-    // }
 }
 Vue.onMounted(async () => {
     for (let i = 0; i < 100; i++) {

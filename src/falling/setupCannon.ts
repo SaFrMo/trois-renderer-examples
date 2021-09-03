@@ -31,10 +31,24 @@ export default () => {
     //             restitution,
     //         }),
     //     })
-    //     wall.quaternion.setFromEuler(i === 0 ? -Math.PI : 0, 0, 0) // make it face up
-    //     wall.position.x = i === 0 ? -1 : 1
+    //     // wall.quaternion.setFromEuler(0, 0, i === 0 ? -Math.PI : 0) // make it face up
+    //     wall.position.x = i === 0 ? -100 : 100
     //     world.addBody(wall)
     // }
+    for (let i = 0; i < 2; i++) {
+        const wall = new CANNON.Body({
+            type: CANNON.Body.STATIC,
+            shape: new CANNON.Plane(),
+            material: new CANNON.Material({
+                restitution,
+            }),
+        })
+        wall.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), i === 0 ? Math.PI / 2 : Math.PI / -2)
+        wall.position.x = i === 0 ? -5 : 5
+        world.addBody(wall)
+
+    }
+
 
     // build update function
     const timeStep = 1 / 60

@@ -1,17 +1,21 @@
 <template>
-    <OrbitControlsWrapper :options="{ enablePan: true, enableZoom: true }" />
-    <!-- <pointLight :position-x="-5" :position-y="20" />
+    <group>
+        <OrbitControlsWrapper
+            :options="{ enablePan: true, enableZoom: true }"
+        />
+        <!-- <pointLight :position-x="-5" :position-y="20" />
     <ambientLight color="#666666" /> -->
 
-    <mesh
-        v-for="body in threeBodies"
-        :key="body.id"
-        :position="[body.position.x, body.position.y, body.position.z]"
-        :scale="body.scale"
-    >
-        <component :is="body.geometry" />
-        <meshBasicMaterial :color="body.color" />
-    </mesh>
+        <mesh
+            v-for="body in threeBodies"
+            :key="body.id"
+            :position="[body.position.x, body.position.y, body.position.z]"
+            :scale="body.scale"
+        >
+            <component :is="body.geometry" />
+            <meshBasicMaterial :color="body.color" />
+        </mesh>
+    </group>
 </template>
 
 <script lang="ts" setup>
@@ -53,7 +57,6 @@ const addBody = (body: CANNON.Body, geometry?: string, scale?: number) => {
             color: getColor(),
             scale,
         })
-        console.log(threeBodies.value)
     }
 }
 
@@ -72,21 +75,17 @@ const addRandomBody = () => {
         }),
     })
     const x = Math.random() * 10 - 5
-    const y = Math.random() * 10 + 5
+    const y = 10
     sphereBody.position.set(x, y, 0) // m
 
     addBody(sphereBody, 'sphereGeometry', scale)
     // }
 }
-addRandomBody()
-addRandomBody()
-
 Vue.onMounted(async () => {
-    // for (let i = 0; i < 10; i++) {
-    //     addRandomBody()
-    //     await new Promise((res) => setTimeout(res, 1000))
-    // }
-    addRandomBody()
+    for (let i = 0; i < 50; i++) {
+        addRandomBody()
+        await new Promise((res) => setTimeout(res, Math.random() * 800))
+    }
 })
 
 // UPDATE FUNCTIONS

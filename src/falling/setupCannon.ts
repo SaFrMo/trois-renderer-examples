@@ -1,6 +1,4 @@
 import * as CANNON from 'cannon-es'
-import * as Vue from 'vue'
-import * as THREE from 'three'
 
 export default () => {
     // build world

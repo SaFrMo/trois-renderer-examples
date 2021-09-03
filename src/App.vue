@@ -4,7 +4,7 @@
         :rendererProperties="rendererProperties"
     >
         <!-- menu -->
-        <group v-if="loaded && current === 'menu'" :position-y="2.5">
+        <group v-if="loaded" :visible="current === 'menu'" :position-y="2.5">
             <pointLight :position-z="5" :intensity="intensity" />
 
             <!-- intro text -->
@@ -22,7 +22,7 @@
         </group>
 
         <!-- case studies -->
-        <Falling v-if="current === 'falling'" />
+        <Falling v-if="current === 'falling'" @exited="current = 'menu'" />
     </TroisCanvas>
 </template>
 
@@ -32,6 +32,8 @@ import * as THREE from 'three'
 import { animate } from 'popmotion'
 import TextMesh from './components/TextMesh.vue'
 import Falling from './falling/Falling.vue'
+import { useTrois } from 'trois-renderer'
+const trois = useTrois()
 
 interface Link {
     text: string
@@ -63,7 +65,15 @@ const links: Link[] = [
 watch(
     () => current.value,
     (currentEl) => {
-        window.location.hash = currentEl === 'menu' ? '' : currentEl
+        if (currentEl === 'menu') {
+            history.pushState(
+                '',
+                document.title,
+                window.location.pathname + window.location.search
+            )
+        } else {
+            window.location.hash = currentEl
+        }
     }
 )
 
@@ -82,6 +92,28 @@ loader.load('/easley.json', (loadedFont) => {
 // light intensity
 const intensity = ref(1)
 let lightAnimation: { stop: () => void }
+
+const fadeInLight = () => {
+    // reset camera position/rotation
+    trois.camera?.value?.position.set(0, 0, 10)
+    trois.camera?.value?.rotation.setFromVector3(new THREE.Vector3(0, 0, 0))
+
+    if (lightAnimation) lightAnimation.stop()
+    lightAnimation = animate({
+        from: intensity.value,
+        to: 1,
+        duration: 300,
+        onUpdate: (v) => (intensity.value = v),
+    })
+}
+watch(
+    () => current.value,
+    (newVal) => {
+        if (newVal === 'menu') {
+            fadeInLight()
+        }
+    }
+)
 
 // click event
 const onClick = async (url: string) => {

@@ -17,11 +17,11 @@
             :position-x="0"
             :position-y="1"
             :position-z="5"
-            :intensity="0.3"
+            :intensity="spotLightIntensity * 0.3"
             :penumbra="0.5"
             color="#efdede"
         />
-        <ambientLight color="#aaaaaa" />
+        <ambientLight color="#aaaaaa" :intensity="ambientLightIntensity" />
 
         <!-- floor -->
         <mesh
@@ -58,10 +58,63 @@
 import OrbitControlsWrapper from '../components/OrbitControlsWrapper.vue'
 import * as CANNON from 'cannon-es'
 import * as Vue from 'vue'
+import { defineEmits } from 'vue'
 import * as THREE from 'three'
 import { addBeforeRender, removeBeforeRender } from 'trois-renderer'
 import setupCannon from './setupCannon'
 import { getColor } from './colors'
+import { animate } from 'popmotion'
+
+// EXIT
+// ====================
+const emit =
+    defineEmits<{
+        (event: 'exited'): void
+    }>()
+Vue.onMounted(() => {
+    window.addEventListener('keydown', leave)
+})
+Vue.onBeforeUnmount(() => {
+    window.removeEventListener('keydown', leave)
+})
+
+// LIGHT FADEIN/FADEOUT
+// =====================
+const introLength = 1500
+const outroLength = introLength * 0.5
+const spotLightIntensity = Vue.ref(0)
+const ambientLightIntensity = Vue.ref(0)
+let lightAnimation: { stop: () => void }
+Vue.onMounted(() => {
+    if (lightAnimation) lightAnimation.stop()
+    lightAnimation = animate({
+        from: 0,
+        to: 1,
+        duration: introLength,
+        onUpdate: (v) => {
+            spotLightIntensity.value = v
+            ambientLightIntensity.value = v
+        },
+    })
+})
+const leave = async (evt: KeyboardEvent) => {
+    if (evt.key !== 'Escape') return
+
+    if (lightAnimation) lightAnimation.stop()
+    await new Promise<void>((res) => {
+        lightAnimation = animate({
+            from: spotLightIntensity.value,
+            to: 0,
+            duration: outroLength,
+            onUpdate: (v) => {
+                spotLightIntensity.value = v
+                ambientLightIntensity.value = v
+            },
+            onComplete: res,
+        })
+    })
+    emit('exited')
+}
 
 // PREP THREE
 // ============
@@ -77,10 +130,10 @@ const threeBodies = Vue.ref([] as ThreeBody[])
 
 // PREP CANNON
 // ====================
-const { physicsUpdate, world } = setupCannon()
+let { physicsUpdate, world } = setupCannon()
 
-// WORLD SETUP
-// =============
+// WORLD SETUP & TEARDOWN
+// =========================
 const addBody = (body: CANNON.Body, geometry?: string, scale?: number) => {
     world.addBody(body)
 
@@ -95,6 +148,12 @@ const addBody = (body: CANNON.Body, geometry?: string, scale?: number) => {
         })
     }
 }
+Vue.onBeforeUnmount(() => {
+    world.bodies.forEach((body) => {
+        world.removeBody(body)
+    })
+    world = null as any
+})
 
 // INSTANTIATION
 // ===============
@@ -114,9 +173,11 @@ const addRandomBody = () => {
     addBody(sphereBody, 'icosahedronGeometry', scale)
 }
 Vue.onMounted(async () => {
+    await new Promise((res) => setTimeout(res, introLength))
     for (let i = 0; i < 100; i++) {
         addRandomBody()
-        await new Promise((res) => setTimeout(res, Math.random() * 800))
+        await new Promise((res) => setTimeout(res, Math.random() * 800 + 400))
+        if (!world) break
     }
 })
 

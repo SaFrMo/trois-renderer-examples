@@ -11,15 +11,16 @@ export default () => {
     const restitution = 1
 
     // add floor
-    // const groundBody = new CANNON.Body({
-    //     type: CANNON.Body.STATIC,
-    //     shape: new CANNON.Plane(),
-    //     material: new CANNON.Material({
-    //         restitution,
-    //     }),
-    // })
-    // groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
-    // world.addBody(groundBody)
+    const groundBody = new CANNON.Body({
+        type: CANNON.Body.STATIC,
+        shape: new CANNON.Plane(),
+        material: new CANNON.Material({
+            restitution,
+        }),
+    })
+    groundBody.position.y = -3
+    groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
+    world.addBody(groundBody)
 
     // // add walls
     // for (let i = 0; i < 2; i++) {
@@ -38,7 +39,9 @@ export default () => {
     // build update function
     const timeStep = 1 / 60
     let lastCallTime: undefined | number
-    const update = () => {
+    const physicsUpdate = (before?: () => void, after?: () => void) => {
+        if (before) before()
+
         const time = performance.now() / 1000
 
         if (!lastCallTime) {
@@ -48,15 +51,9 @@ export default () => {
             world.step(timeStep, dt)
         }
         lastCallTime = time
+
+        if (after) after()
     }
 
-
-    // prep adding bodies
-    const bodies = Vue.ref([] as CANNON.Body[])
-    const addBody = (body: CANNON.Body) => {
-        bodies.value.push(body)
-        world.addBody(body)
-    }
-
-    return { addBody, bodies, update, world }
+    return { physicsUpdate, world }
 }

@@ -80,8 +80,8 @@ Vue.onBeforeUnmount(() => {
 
 // LIGHT FADEIN/FADEOUT
 // =====================
-const introLength = 1500
-const outroLength = introLength * 0.5
+const introLength = 800
+const outroLength = 300
 const spotLightIntensity = Vue.ref(0)
 const ambientLightIntensity = Vue.ref(0)
 let lightAnimation: { stop: () => void }

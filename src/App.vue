@@ -102,7 +102,7 @@ const fadeInLight = () => {
     lightAnimation = animate({
         from: intensity.value,
         to: 1,
-        duration: 300,
+        duration: 200,
         onUpdate: (v) => (intensity.value = v),
     })
 }
